@@ -1,0 +1,34 @@
+# LLM integration
+ollama                     # Required for LLM integration
+langchain                  # Core LangChain library
+langchain_community        # Community extensions for LangChain
+langchain_ollama           # Ollama embeddings support
+
+# HTTP Requests
+requests>=2.0.0            # Modern requests library for HTTP interactions
+
+# PDF Processing
+pypdf                      # Required for PDF parsing
+
+# Flask Web Framework and Real-Time Communication
+flask                      # Core Flask web framework
+flask[async]               # Enable asynchronous Flask support
+flask-socketio             # Real-time communication in Flask apps
+python-socketio            # Underlying Socket.IO implementation
+eventlet                   # Required by Flask-SocketIO for WebSocket
+
+# Logging
+colorlog                   # For enhanced logging with colors
+
+# Machine Learning Framework
+torch                      # PyTorch for LLM and device management
+
+# FAISS dependencies for Windows
+faiss-cpu                  # Install FAISS for CPU
+faiss-gpu                  # Install FAISS for GPU
+
+
+# OCR and Image Processing
+pytesseract>=0.3.10          # Tesseract OCR for text extraction from images (requires Tesseract binary)
+pillow>=9.0.0                # Python Imaging Library (PIL) for image processing
+pdf2image>=1.16.0            # Convert PDF pages to images for OCR (requires poppler-utils)

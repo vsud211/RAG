@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  raglatestwithui:
+    image: raglatestwithui
+    ports:
+      - "11434:11434"
+      - "5000:5000"
+    volumes:
+      - D:\RAG_Doc_Repo\Repo_cache\embedding:/app/Repo_cache
+      - D:\RAG_Doc_Repo\Repo_cache\vector_store:/app/Repo_cache/vector_store
+      - D:\RAG_Doc_Repo\Doc_repo:/app/Doc_repo

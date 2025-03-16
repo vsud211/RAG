@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Bot</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="chat-container">
+        <h1>Chat Bot</h1>
+        <textarea id="query" placeholder="Type your question..."></textarea>
+        <button onclick="sendQuery()">Ask</button>
+        <div class="question-tiles">
+            <div class="tile" onclick="populateQuery('What is AI?')">What is AI?</div>
+            <div class="tile" onclick="populateQuery('How does machine learning work?')">How does machine learning work?</div>
+            <div class="tile" onclick="populateQuery('What are neural networks?')">What are neural networks?</div>
+        </div>
+        <h2>Answer</h2>
+        <div id="loading" style="display:none;">Processing...</div>
+        <div id="response"></div>
+        <h3>Conversation Log</h3>
+        <div id="chat-log" class="chat-log"></div>
+    </div>
+
+    <script>
+        const socket = io();
+        const loadingElement = document.getElementById("loading");
+        const responseElement = document.getElementById("response");
+        const chatLogElement = document.getElementById("chat-log");
+
+        function sendQuery() {
+            const query = document.getElementById("query").value.trim();
+            if (!query) {
+                alert("Please enter a query!");
+                return;
+            }
+            responseElement.innerHTML = "";
+            loadingElement.style.display = "block";
+            
+            socket.emit("query", { query });
+
+            socket.on("response", function(data) {
+                loadingElement.style.display = "none";
+                if (data.chunk) {
+                    responseElement.innerHTML += `<p>${data.chunk}</p>`;
+                    chatLogElement.innerHTML += `<p><b>You:</b> ${query}</p>`;
+                    chatLogElement.innerHTML += `<p><b>Bot:</b> ${data.chunk}</p>`;
+                } else if (data.error) {
+                    responseElement.innerHTML = `<p style="color:red;">Error: ${data.error}</p>`;
+                }
+            });
+
+            socket.on("response_complete", function(data) {
+                console.log("Streaming completed for query:", data.query);
+            });
+        }
+
+        function populateQuery(question) {
+            const queryElem = document.getElementById("query");
+            queryElem.value = question;
+        }
+    </script>
+</body>
+</html>

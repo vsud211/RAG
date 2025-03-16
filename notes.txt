@@ -1,0 +1,156 @@
+Document-Level Caching: Avoid recomputing embeddings for documents that haven't changed by using a hash-based mechanism.
+
+Vector Store Caching: Save and reload the FAISS index to/from disk for faster subsequent runs.
+
+Query Caching: Cache results of queries to speed up repeat lookups.
+
+Advanced Options: Replace pickle with SQLite or Redis for more robust caching.
+
+These techniques can dramatically improve performance, especially as the dataset grows or the application processes frequent queries. Let me know if you'd like to implement or expand any of these! 
+
+
+what if a new dopcument is added or updated ?
+
+Does the container size grows as files are increased ?
+
+Why Container Size Grows
+Increased File Storage:
+
+Every new file added to your specified directories within the container (e.g., /app/Doc_repo/ or /app/Repo_cache/) will consume additional disk space, increasing the container size.
+
+Cache and Embeddings:
+
+Generated embeddings (e.g., embeddings_cache.pkl or FAISS vector indexes) also grow as more documents are processed, since each document adds additional vectors or metadata.
+
+Runtime Data and Logs:
+
+Temporary files, logs, and runtime data created during container execution can contribute to size growth if not properly managed.
+
+How to Manage and Optimize Container Size
+Mount Volumes Instead of Storing Files Inside the Container:
+
+Use Docker volumes or bind mounts to store your files and embeddings outside the container. This keeps the container size fixed, while allowing your application to interact with a folder on the host machine.
+
+Example in docker run:
+
+bash
+docker run -v /host/path/to/Repo_cache:/app/Repo_cache my_container
+This will store all files in /host/path/to/Repo_cache on your host system, not in the container itself.
+
+Regular Cleanup:
+
+Ensure temporary files, logs, and other runtime data are deleted or excluded from the container when no longer needed.
+
+Example in Python:
+
+python
+import os
+
+# Remove temporary files
+if os.path.exists("/app/temp_file"):
+    os.remove("/app/temp_file")
+Use Multi-Stage Builds:
+
+If you're building your container with a Dockerfile, use multi-stage builds to reduce unnecessary files and dependencies in the final container.
+
+Dockerfile
+FROM python:3.9-slim AS base
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+
+FROM base AS production
+CMD ["python", "main.py"]
+Compress or Optimize Embeddings:
+
+Save embeddings in a more compact format or use techniques like quantization to reduce size.
+
+Example using FAISS quantization:
+
+python
+index = faiss.IndexFlatL2(d)  # Example FAISS index
+quantizer = faiss.IndexScalarQuantizer(d, faiss.ScalarQuantizer.QT_8bit)
+quantizer.train(vectors)
+index.add(vectors)
+Store Large Files Externally:
+
+For large document repositories, use external storage solutions like cloud storage (e.g., Azure Blob Storage, AWS S3) and fetch files dynamically when needed.
+
+Exclude Files When Building the Image:
+
+Use a .dockerignore file to exclude unnecessary files from being copied into the container during the build process:
+
+*.log
+*.pkl
+temp/
+__pycache__/
+Why Mounting Volumes is Recommended
+Mounting volumes keeps your container lightweight and avoids increasing its size, as all new or updated files are stored outside the container. It also ensures that your data persists even if the container is removed or recreated.
+
+Let me know if you'd like more detailed steps on implementing any of these optimizations!
+
+How to Manage and Optimize Container Size
+Mount Volumes Instead of Storing Files Inside the Container:
+
+Use Docker volumes or bind mounts to store your files and embeddings outside the container. This keeps the container size fixed, while allowing your application to interact with a folder on the host machine.
+
+Example in docker run:
+
+bash
+docker run -v /host/path/to/Repo_cache:/app/Repo_cache my_container
+This will store all files in /host/path/to/Repo_cache on your host system, not in the container itself.
+
+Regular Cleanup:
+
+Ensure temporary files, logs, and other runtime data are deleted or excluded from the container when no longer needed.
+
+Example in Python:
+
+python
+import os
+
+# Remove temporary files
+if os.path.exists("/app/temp_file"):
+    os.remove("/app/temp_file")
+Use Multi-Stage Builds:
+
+If you're building your container with a Dockerfile, use multi-stage builds to reduce unnecessary files and dependencies in the final container.
+
+Dockerfile
+FROM python:3.9-slim AS base
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+
+FROM base AS production
+CMD ["python", "main.py"]
+Compress or Optimize Embeddings:
+
+Save embeddings in a more compact format or use techniques like quantization to reduce size.
+
+Example using FAISS quantization:
+
+python
+index = faiss.IndexFlatL2(d)  # Example FAISS index
+quantizer = faiss.IndexScalarQuantizer(d, faiss.ScalarQuantizer.QT_8bit)
+quantizer.train(vectors)
+index.add(vectors)
+Store Large Files Externally:
+
+For large document repositories, use external storage solutions like cloud storage (e.g., Azure Blob Storage, AWS S3) and fetch files dynamically when needed.
+
+Exclude Files When Building the Image:
+
+Use a .dockerignore file to exclude unnecessary files from being copied into the container during the build process:
+
+*.log
+*.pkl
+temp/
+__pycache__/
+Why Mounting Volumes is Recommended
+Mounting volumes keeps your container lightweight and avoids increasing its size, as all new or updated files are stored outside the container. It also ensures that your data persists even if the container is removed or recreated.
+
+Let me know if you'd like more detailed steps on implementing any of these optimizations!
+
