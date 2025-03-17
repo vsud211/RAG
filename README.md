@@ -1,4 +1,4 @@
-# LangChain Q&A Application with Document Retrieval with Docker support
+# LangChain Q&A Application with Document Retrieval
 
 This repository contains a Flask-based application that leverages LangChain to perform question-answering over a collection of PDF documents. It utilizes embeddings to retrieve relevant document snippets and generate coherent responses.
 
@@ -11,6 +11,7 @@ This repository contains a Flask-based application that leverages LangChain to p
 * **Document Metadata Retrieval:** Retrieves and returns metadata (source, type, author, date) of the documents used to generate the response.
 * **REST API:** Provides a REST API endpoint for querying the application.
 * **Logging:** Implements logging for debugging and monitoring.
+* **Docker Deployment:** Provides a Dockerfile for easy deployment.
 
 ## Prerequisites
 
@@ -18,6 +19,7 @@ This repository contains a Flask-based application that leverages LangChain to p
 * Poetry (recommended) or pip for dependency management
 * A vector database (e.g., Chroma, FAISS) configured according to your `embedding_handler.py` setup.
 * PDF documents placed into the `/app/Doc_repo/` directory.
+* Docker installed on your system.
 
 ## Installation
 
@@ -46,7 +48,7 @@ This repository contains a Flask-based application that leverages LangChain to p
     * Adjust the embedding model, vector store, and other settings as needed.
     * Ensure that the vector database is running.
 
-## Running the Application
+## Running the Application (Without Docker)
 
 1.  **Start the Flask application:**
 
@@ -97,12 +99,36 @@ This repository contains a Flask-based application that leverages LangChain to p
     }
     ```
 
+## Docker Deployment
+
+1.  **Build the Docker image:**
+
+    ```bash
+    docker build -t langchain-qa-app .
+    ```
+
+2.  **Run the Docker container:**
+
+    ```bash
+    docker run -p 5000:5000 -v $(pwd)/app/Doc_repo:/app/Doc_repo langchain-qa-app
+    ```
+
+    * `-p 5000:5000` maps port 5000 of the container to port 5000 of your host machine.
+    * `-v $(pwd)/app/Doc_repo:/app/Doc_repo` mounts your local `Doc_repo` directory into the container, allowing you to easily manage your PDF documents. If on windows, replace `$(pwd)` with `%cd%`.
+    * If you are using a vector database that requires a network connection, you will need to ensure that the docker container has access to that network. This may involve using docker networking features.
+
+3.  **Access the application:**
+
+    * The application will be accessible at `http://localhost:5000`.
+    * Send POST requests to `http://localhost:5000/query` with a JSON payload as described above.
+
 ## Code Structure
 
 * `app.py`: Main Flask application file.
 * `embedding_handler.py`: Handles document loading, embedding generation, vector store management, and QA chain creation.
 * `logger_util.py`: Configures logging for the application.
 * `requirements.txt`: Lists Python dependencies.
+* `Dockerfile`: Dockerfile for containerization.
 * `templates/index.html`: a simple html file for testing.
 * `/app/Doc_repo/`: Directory for storing PDF documents.
 
@@ -111,6 +137,7 @@ This repository contains a Flask-based application that leverages LangChain to p
 * Modify `embedding_handler.py` to configure the embedding model, vector store, and other settings.
 * Adjust logging levels in `logger_util.py` as needed.
 * The document directory `/app/Doc_repo/` can be changed in `app.py`.
+* When using docker, the vector database must be configured to be accessible from within the container.
 
 ## Future Improvements
 
@@ -120,6 +147,7 @@ This repository contains a Flask-based application that leverages LangChain to p
 * Improve error handling and robustness.
 * Add web socket support.
 * Add support for environment variable configuration.
+* Add Docker compose support.
 
 ## Contributing
 
