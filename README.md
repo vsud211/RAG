@@ -1,4 +1,4 @@
-# LangChain Q&A Application with Document Retrieval
+# LangChain Q&A Application with Document Retrieval with Docker support
 
 This repository contains a Flask-based application that leverages LangChain to perform question-answering over a collection of PDF documents. It utilizes embeddings to retrieve relevant document snippets and generate coherent responses.
 
